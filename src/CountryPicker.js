@@ -1,9 +1,7 @@
 // @flow
-/* eslint import/newline-after-import: 0 */
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import SafeAreaView from 'react-native-safe-area-view'
 
 import {
   StyleSheet,
@@ -15,7 +13,8 @@ import {
   TextInput,
   ListView,
   ScrollView,
-  Platform
+  Platform,
+  ImageBackground
 } from 'react-native'
 
 import Fuse from 'fuse.js'
@@ -30,33 +29,21 @@ let countries = null
 let Emoji = null
 let styles = {}
 
-let isEmojiable = Platform.OS === 'ios'
+const isEmojiable = Platform.OS === 'ios'
 
-const FLAG_TYPES = {
-  flat: 'flat',
-  emoji: 'emoji'
+if (isEmojiable) {
+  countries = require('../data/countries-emoji')
+  Emoji = require('./emoji').default
+} else {
+  countries = require('../data/countries')
+
+  Emoji = <View />
 }
-
-const setCountries = flagType => {
-  if (typeof flagType !== 'undefined') {
-    isEmojiable = flagType === FLAG_TYPES.emoji
-  }
-
-  if (isEmojiable) {
-    countries = require('../data/countries-emoji')
-    Emoji = require('./emoji').default
-  } else {
-    countries = require('../data/countries')
-    Emoji = <View />
-  }
-}
-
-const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 })
-
-setCountries()
 
 export const getAllCountries = () =>
   cca2List.map(cca2 => ({ ...countries[cca2], cca2 }))
+
+const ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 })
 
 export default class CountryPicker extends Component {
   static propTypes = {
@@ -75,13 +62,10 @@ export default class CountryPicker extends Component {
     // to provide a functionality to disable/enable the onPress of Country Picker.
     disabled: PropTypes.bool,
     filterPlaceholderTextColor: PropTypes.string,
-    closeButtonImage: PropTypes.element,
+    closeButtonImage: Image.propTypes.source,
     transparent: PropTypes.bool,
-    animationType: PropTypes.oneOf(['slide', 'fade', 'none']),
-    flagType: PropTypes.oneOf(Object.values(FLAG_TYPES)),
-    hideAlphabetFilter: PropTypes.bool,
-    renderFilter: PropTypes.func,
-    showCallingCode: PropTypes.bool
+    animationType: PropTypes.string,
+    cuntryNmame: PropTypes.string,
   }
 
   static defaultProps = {
@@ -96,7 +80,7 @@ export default class CountryPicker extends Component {
 
   static renderEmojiFlag(cca2, emojiStyle) {
     return (
-      <Text style={[styles.emojiFlag, emojiStyle]} allowFontScaling={false}>
+      <Text style={[styles.emojiFlag, emojiStyle]}>
         {cca2 !== '' && countries[cca2.toUpperCase()] ? (
           <Emoji name={countries[cca2.toUpperCase()].flag} />
         ) : null}
@@ -127,7 +111,6 @@ export default class CountryPicker extends Component {
     super(props)
     this.openModal = this.openModal.bind(this)
 
-    setCountries(props.flagType)
     let countryList = [...props.countryList]
     const excludeCountries = [...props.excludeCountries]
 
@@ -154,7 +137,8 @@ export default class CountryPicker extends Component {
       cca2List: countryList,
       dataSource: ds.cloneWithRows(countryList),
       filter: '',
-      letters: this.getLetters(countryList)
+      letters: this.getLetters(countryList),
+      activeLetter: 'A'
     }
 
     if (this.props.styles) {
@@ -214,7 +198,7 @@ export default class CountryPicker extends Component {
     })
   }
 
-  onClose = () => {
+  onClose() {
     this.setState({
       modalVisible: false,
       filter: '',
@@ -260,6 +244,9 @@ export default class CountryPicker extends Component {
 
   scrollTo(letter) {
     // find position of first country that starts with letter
+    this.setState({
+      activeLetter: letter
+    });
     const index = this.state.cca2List
       .map(country => this.getCountryName(countries[country])[0])
       .indexOf(letter)
@@ -298,7 +285,10 @@ export default class CountryPicker extends Component {
         onPress={() => this.onSelectCountry(country)}
         activeOpacity={0.99}
       >
-        {this.renderCountryDetail(country)}
+        <View style={{ marginLeft: 15 }}>
+          {this.renderCountryDetail(country)}
+          <Image source={require('./delimiter.png')} style={styles.delimiter} />
+        </View>
       </TouchableOpacity>
     )
   }
@@ -311,9 +301,7 @@ export default class CountryPicker extends Component {
         activeOpacity={0.6}
       >
         <View style={styles.letter}>
-          <Text style={styles.letterText} allowFontScaling={false}>
-            {letter}
-          </Text>
+          <Text style={styles.letterText}>{letter}</Text>
         </View>
       </TouchableOpacity>
     )
@@ -325,42 +313,31 @@ export default class CountryPicker extends Component {
       <View style={styles.itemCountry}>
         {CountryPicker.renderFlag(cca2)}
         <View style={styles.itemCountryName}>
-          <Text style={styles.countryName} allowFontScaling={false}>
-            {this.getCountryName(country)}
-            {this.props.showCallingCode &&
-            country.callingCode &&
-            <Text>{` (+${country.callingCode})`}</Text>}
-          </Text>
+          <Text style={styles.countryName}>{this.getCountryName(country)}</Text>
         </View>
       </View>
     )
   }
 
-  renderFilter = () => {
-    const {
-      renderFilter,
-      autoFocusFilter,
-      filterPlaceholder,
-      filterPlaceholderTextColor
-    } = this.props
-
-    const value = this.state.filter
-    const onChange = this.handleFilterChange
-    const onClose = this.onClose
-
-    return renderFilter ? (
-      renderFilter({ value, onChange, onClose })
-    ) : (
-      <TextInput
-        autoFocus={autoFocusFilter}
-        autoCorrect={false}
-        placeholder={filterPlaceholder}
-        placeholderTextColor={filterPlaceholderTextColor}
-        style={[styles.input, !this.props.closeable && styles.inputOnly]}
-        onChangeText={onChange}
-        value={value}
-      />
-    )
+  renderCurentCountry = () => {
+    return (
+      <View>
+        <View style={styles.curentCountryContainer}>
+          <View style={styles.curentCountryFlag}>
+            {CountryPicker.renderFlag(this.props.cca2)}
+            <Text style={styles.cuntryNmame}>{this.props.cuntryNmame}</Text>
+          </View>
+          <Text style={styles.curentCantryText}>{'current country'.toUpperCase()}</Text>
+        </View>
+        <View style={{alignItems: 'flex-end', marginBottom: 5}}>
+          <View style={styles.activLetterWrapper}>
+            <View style={styles.activLetterContainer}>
+              <Text style={styles.activeLetter}>{this.state.activeLetter.toUpperCase()}</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
   }
 
   render() {
@@ -374,12 +351,12 @@ export default class CountryPicker extends Component {
           {this.props.children ? (
             this.props.children
           ) : (
-            <View
-              style={[styles.touchFlag, { marginTop: isEmojiable ? 0 : 5 }]}
-            >
-              {CountryPicker.renderFlag(this.props.cca2)}
-            </View>
-          )}
+              <View
+                style={[styles.touchFlag, { marginTop: isEmojiable ? 0 : 5 }]}
+              >
+                {CountryPicker.renderFlag(this.props.cca2)}
+              </View>
+            )}
         </TouchableOpacity>
         <Modal
           transparent={this.props.transparent}
@@ -387,45 +364,68 @@ export default class CountryPicker extends Component {
           visible={this.state.modalVisible}
           onRequestClose={() => this.setState({ modalVisible: false })}
         >
-          <SafeAreaView style={styles.modalContainer}>
+          <ImageBackground style={styles.modalContainer} source={require('./background.png')}>
             <View style={styles.header}>
-              {this.props.closeable && (
-                <CloseButton
-                  image={this.props.closeButtonImage}
-                  styles={[styles.closeButton, styles.closeButtonImage]}
-                  onPress={() => this.onClose()}
-                />
+              <View style={{ marginTop: 10 }}>
+                {this.props.closeable && (
+                  <CloseButton
+                    image={this.props.closeButtonImage}
+                    styles={[styles.closeButton, styles.closeButtonImage]}
+                    onPress={() => this.onClose()}
+                  />
+                )}
+                <Text style={styles.countryText}>COUNTRY</Text>
+                <Text style={styles.selectCountryText}>{'Select your country'.toUpperCase()}</Text>
+              </View>
+              {this.props.filterable && (
+                <View style={styles.filterContainer}>
+                  <Image source={require('./delimiter.png')} style={styles.delimiter} />
+                  <View style={styles.contentFilterContainer}>
+                    <Image source={require('./search.png')} style={styles.serchIcon} />
+                    <TextInput
+                      underlineColorAndroid='transparent'
+                      autoFocus={this.props.autoFocusFilter}
+                      autoCorrect={false}
+                      placeholder={this.props.filterPlaceholder}
+                      placeholderTextColor={this.props.filterPlaceholderTextColor}
+                      style={styles.input}
+                      onChangeText={this.handleFilterChange}
+                      value={this.state.filter}
+                    />
+                  </View>
+                  <Image source={require('./delimiter.png')} style={styles.delimiter} />
+                </View>
               )}
-              {this.props.filterable && this.renderFilter()}
             </View>
             <KeyboardAvoidingView behavior="padding">
               <View style={styles.contentContainer}>
-                <ListView
-                  keyboardShouldPersistTaps="always"
-                  enableEmptySections
-                  ref={listView => (this._listView = listView)}
-                  dataSource={this.state.dataSource}
-                  renderRow={country => this.renderCountry(country)}
-                  initialListSize={30}
-                  pageSize={15}
-                  onLayout={({ nativeEvent: { layout: { y: offset } } }) =>
-                    this.setVisibleListHeight(offset)
-                  }
-                />
-                {!this.props.hideAlphabetFilter && (
-                  <ScrollView
-                    contentContainerStyle={styles.letters}
+                <View style={{ width: '90%' }}>
+                  {this.renderCurentCountry()}
+                  <ListView
                     keyboardShouldPersistTaps="always"
-                  >
-                    {this.state.filter === '' &&
-                      this.state.letters.map((letter, index) =>
-                        this.renderLetters(letter, index)
-                      )}
-                  </ScrollView>
-                )}
+                    enableEmptySections
+                    ref={listView => (this._listView = listView)}
+                    dataSource={this.state.dataSource}
+                    renderRow={country => this.renderCountry(country)}
+                    initialListSize={30}
+                    pageSize={15}
+                    onLayout={({ nativeEvent: { layout: { y: offset } } }) =>
+                      this.setVisibleListHeight(offset)
+                    }
+                  />
+                </View>
+                <ScrollView
+                  contentContainerStyle={styles.letters}
+                  keyboardShouldPersistTaps="always"
+                >
+                  {this.state.filter === '' &&
+                    this.state.letters.map((letter, index) =>
+                      this.renderLetters(letter, index)
+                    )}
+                </ScrollView>
               </View>
             </KeyboardAvoidingView>
-          </SafeAreaView>
+          </ImageBackground>
         </Modal>
       </View>
     )

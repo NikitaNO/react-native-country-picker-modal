@@ -5,9 +5,9 @@ import { Image, TouchableNativeFeedback, View, Platform } from 'react-native'
 import PropTypes from 'prop-types'
 
 const CloseButton = props => {
-  let closeImage = require('./android-close.png')
+  let closeImage = require('./close.png');
 
-  if (props.image) closeImage = props.image
+  if (props.image) closeImage = props.image;
 
   return (
     <View style={props.styles[0]}>
