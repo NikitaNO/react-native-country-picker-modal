@@ -41,7 +41,8 @@ export default StyleSheet.create({
   touchFlag: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 15
+    height: 20,
+    width: 30
   },
   imgStyle: {
     resizeMode: 'contain',
@@ -99,12 +100,13 @@ export default StyleSheet.create({
     color: 'white'
   },
   closeButton: {
-    height: 17,
-    width: 17,
+    height: 20,
+    width: 20,
     justifyContent: 'center',
+    alignItems: 'center',
     position: 'absolute',
-    left: 0,
-    top: 0,
+    left: -3,
+    top: -3,
     zIndex: 100,
   },
   closeButtonImage: {
