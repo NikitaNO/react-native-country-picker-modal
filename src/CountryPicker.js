@@ -14,8 +14,10 @@ import {
   ListView,
   ScrollView,
   Platform,
-  ImageBackground
+  Animated,
+  Easing
 } from 'react-native'
+import { BlurView } from 'react-native-blur'
 
 import Fuse from 'fuse.js'
 
@@ -138,7 +140,7 @@ export default class CountryPicker extends Component {
       dataSource: ds.cloneWithRows(countryList),
       filter: '',
       letters: this.getLetters(countryList),
-      activeLetter: 'A'
+      activeLetter: 'A',
     }
 
     if (this.props.styles) {
@@ -171,7 +173,13 @@ export default class CountryPicker extends Component {
         keys: ['name'],
         id: 'id'
       }
-    )
+    );
+
+    this.animatedValue = new Animated.Value(0);
+
+    this.animatedValue.addListener(value => {
+      this.setState({ modalBlur: value.value });
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -207,7 +215,31 @@ export default class CountryPicker extends Component {
     if (this.props.onClose) {
       this.props.onClose()
     }
+
+    this.onAnimationEnd()
   }
+
+  onAnimationStart = () => {
+    const animation = Animated.timing(this.animatedValue, {
+      toValue: 32,
+      duration: 1000,
+      easing: Easing.ease.in,
+      useNativeDriver: true,
+    });
+
+    animation.start(() => this.onAnimationStart());
+  };
+
+  onAnimationEnd = () => {
+    const animation = Animated.timing(this.animatedValue, {
+      toValue: 0,
+      duration: 1000,
+      easing: Easing.ease.out,
+      useNativeDriver: true,
+    });
+
+    animation.start(() => this.onAnimationStart());
+  };
 
   getCountryName(country, optionalTranslation) {
     const translation = optionalTranslation || this.props.translation || 'eng'
@@ -239,7 +271,7 @@ export default class CountryPicker extends Component {
   listHeight = countries.length * this.itemHeight
 
   openModal() {
-    this.setState({ modalVisible: true })
+    this.setState({ modalVisible: true }, () => this.onAnimationStart())
   }
 
   scrollTo(letter) {
@@ -319,26 +351,24 @@ export default class CountryPicker extends Component {
     )
   }
 
-  renderCurentCountry = () => {
-    return (
-      <View>
-        <View style={styles.curentCountryContainer}>
-          <View style={styles.curentCountryFlag}>
-            {CountryPicker.renderFlag(this.props.cca2)}
-            <Text style={styles.cuntryNmame}>{this.props.cuntryNmame}</Text>
-          </View>
-          <Text style={styles.curentCantryText}>{'current country'.toUpperCase()}</Text>
+  renderCurentCountry = () => (
+    <View>
+      <View style={styles.curentCountryContainer}>
+        <View style={styles.curentCountryFlag}>
+          {CountryPicker.renderFlag(this.props.cca2)}
+          <Text style={styles.cuntryNmame}>{this.props.cuntryNmame}</Text>
         </View>
-        <View style={{alignItems: 'flex-end', marginBottom: 5}}>
-          <View style={styles.activLetterWrapper}>
-            <View style={styles.activLetterContainer}>
-              <Text style={styles.activeLetter}>{this.state.activeLetter.toUpperCase()}</Text>
-            </View>
+        <Text style={styles.curentCantryText}>{'current country'.toUpperCase()}</Text>
+      </View>
+      <View style={{ alignItems: 'flex-end', marginBottom: 5 }}>
+        <View style={styles.activLetterWrapper}>
+          <View style={styles.activLetterContainer}>
+            <Text style={styles.activeLetter}>{this.state.activeLetter.toUpperCase()}</Text>
           </View>
         </View>
       </View>
-    );
-  }
+    </View>
+    )
 
   render() {
     return (
@@ -351,11 +381,11 @@ export default class CountryPicker extends Component {
           {this.props.children ? (
             this.props.children
           ) : (
-              <View
-                style={[styles.touchFlag]}
-              >
-                {CountryPicker.renderFlag(this.props.cca2)}
-              </View>
+            <View
+              style={[styles.touchFlag]}
+            >
+              {CountryPicker.renderFlag(this.props.cca2)}
+            </View>
             )}
         </TouchableOpacity>
         <Modal
@@ -364,68 +394,75 @@ export default class CountryPicker extends Component {
           visible={this.state.modalVisible}
           onRequestClose={() => this.setState({ modalVisible: false })}
         >
-          <ImageBackground style={styles.modalContainer} source={require('./background.png')}>
-            <View style={styles.header}>
-              <View style={{ marginTop: 10 }}>
-                {this.props.closeable && (
-                  <CloseButton
-                    image={this.props.closeButtonImage}
-                    styles={[styles.closeButton, styles.closeButtonImage]}
-                    onPress={() => this.onClose()}
-                  />
-                )}
-                <Text style={styles.countryText}>COUNTRY</Text>
-                <Text style={styles.selectCountryText}>{'Select your country'.toUpperCase()}</Text>
-              </View>
-              {this.props.filterable && (
-                <View style={styles.filterContainer}>
-                  <Image source={require('./delimiter.png')} style={styles.delimiter} />
-                  <View style={styles.contentFilterContainer}>
-                    <Image source={require('./search.png')} style={styles.serchIcon} />
-                    <TextInput
-                      underlineColorAndroid='transparent'
-                      autoFocus={this.props.autoFocusFilter}
-                      autoCorrect={false}
-                      placeholder={this.props.filterPlaceholder}
-                      placeholderTextColor={this.props.filterPlaceholderTextColor}
-                      style={styles.input}
-                      onChangeText={this.handleFilterChange}
-                      value={this.state.filter}
-                    />
-                  </View>
-                  <Image source={require('./delimiter.png')} style={styles.delimiter} />
-                </View>
+          <BlurView
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              bottom: 0,
+              right: 0,
+            }} blurType="dark" blurAmount={this.state.modalBlur}
+          />
+          <View style={styles.header}>
+            <View style={{ marginTop: 10 }}>
+              {this.props.closeable && (
+                <CloseButton
+                  image={this.props.closeButtonImage}
+                  styles={[styles.closeButton, styles.closeButtonImage]}
+                  onPress={() => this.onClose()}
+                />
               )}
+              <Text style={styles.countryText}>COUNTRY</Text>
+              <Text style={styles.selectCountryText}>{'Select your country'.toUpperCase()}</Text>
             </View>
-            <KeyboardAvoidingView behavior="padding">
-              <View style={styles.contentContainer}>
-                <View style={{ width: '90%' }}>
-                  {this.renderCurentCountry()}
-                  <ListView
-                    keyboardShouldPersistTaps="always"
-                    enableEmptySections
-                    ref={listView => (this._listView = listView)}
-                    dataSource={this.state.dataSource}
-                    renderRow={country => this.renderCountry(country)}
-                    initialListSize={30}
-                    pageSize={15}
-                    onLayout={({ nativeEvent: { layout: { y: offset } } }) =>
-                      this.setVisibleListHeight(offset)
-                    }
+            {this.props.filterable && (
+              <View style={styles.filterContainer}>
+                <Image source={require('./delimiter.png')} style={styles.delimiter} />
+                <View style={styles.contentFilterContainer}>
+                  <Image source={require('./search.png')} style={styles.serchIcon} />
+                  <TextInput
+                    underlineColorAndroid="transparent"
+                    autoFocus={this.props.autoFocusFilter}
+                    autoCorrect={false}
+                    placeholder={this.props.filterPlaceholder}
+                    placeholderTextColor={this.props.filterPlaceholderTextColor}
+                    style={styles.input}
+                    onChangeText={this.handleFilterChange}
+                    value={this.state.filter}
                   />
                 </View>
-                <ScrollView
-                  contentContainerStyle={styles.letters}
-                  keyboardShouldPersistTaps="always"
-                >
-                  {this.state.filter === '' &&
-                    this.state.letters.map((letter, index) =>
-                      this.renderLetters(letter, index)
-                    )}
-                </ScrollView>
+                <Image source={require('./delimiter.png')} style={styles.delimiter} />
               </View>
-            </KeyboardAvoidingView>
-          </ImageBackground>
+            )}
+          </View>
+          <KeyboardAvoidingView behavior="padding">
+            <View style={styles.contentContainer}>
+              <View style={{ width: '90%' }}>
+                {this.renderCurentCountry()}
+                <ListView
+                  keyboardShouldPersistTaps="always"
+                  enableEmptySections
+                  ref={listView => (this._listView = listView)}
+                  dataSource={this.state.dataSource}
+                  renderRow={country => this.renderCountry(country)}
+                  initialListSize={30}
+                  pageSize={15}
+                  onLayout={({ nativeEvent: { layout: { y: offset } } }) =>
+                    this.setVisibleListHeight(offset)
+                  }
+                />
+              </View>
+              <ScrollView
+                contentContainerStyle={styles.letters}
+                keyboardShouldPersistTaps="always"
+              >
+                {this.state.filter === '' &&
+                  this.state.letters.map((letter, index) =>
+                    this.renderLetters(letter, index)
+                  )}
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
         </Modal>
       </View>
     )
