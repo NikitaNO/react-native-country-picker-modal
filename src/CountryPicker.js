@@ -180,6 +180,18 @@ export default class CountryPicker extends Component {
     this.animatedValue.addListener(value => {
       this.setState({ modalBlur: value.value });
     });
+
+    const arr = [];
+
+    for (let i = 0; i <= countryList.length; i++) {
+      arr.push(i);
+    }
+
+    this.arr = arr;
+    this.animatedListValue = [];
+    this.arr.forEach(value => {
+      this.animatedListValue[value] = new Animated.Value(0);
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -216,7 +228,8 @@ export default class CountryPicker extends Component {
       this.props.onClose()
     }
 
-    this.onAnimationEnd()
+    this.onAnimationEnd();
+    this.onAnimationListEnd();
   }
 
   onAnimationStart = () => {
@@ -239,6 +252,30 @@ export default class CountryPicker extends Component {
     });
 
     animation.start(() => this.onAnimationStart());
+  };
+
+  onAnimationListStart = () => {
+    const animations = this.arr.map(item =>
+      Animated.timing(this.animatedValue[item], {
+        toValue: 1,
+        duration: 600,
+        easing: Easing.ease.in,
+      }),
+    );
+
+    Animated.stagger(200, animations).start();
+  };
+
+  onAnimationListEnd = () => {
+    const animations = this.arr.map(item =>
+      Animated.timing(this.animatedValue[item], {
+        toValue: 0,
+        duration: 200,
+        easing: Easing.ease.out,
+      }),
+    );
+
+    Animated.sequence(animations).start();
   };
 
   getCountryName(country, optionalTranslation) {
@@ -271,7 +308,10 @@ export default class CountryPicker extends Component {
   listHeight = countries.length * this.itemHeight
 
   openModal() {
-    this.setState({ modalVisible: true }, () => this.onAnimationStart())
+    this.setState({ modalVisible: true }, () => {
+      this.onAnimationStart();
+      this.onAnimationListStart();
+    })
   }
 
   scrollTo(letter) {
@@ -326,15 +366,26 @@ export default class CountryPicker extends Component {
   }
 
   renderLetters(letter, index) {
+    const itemStyle = {
+      transform: [
+        {
+          translateX: this.animatedListValue[index].interpolate({
+            inputRange: [0, 1],
+            outputRange: [-300, 0],
+          })
+        }
+      ]
+    };
+
     return (
       <TouchableOpacity
         key={index}
         onPress={() => this.scrollTo(letter)}
         activeOpacity={0.6}
       >
-        <View style={styles.letter}>
+        <Animated.View style={[styles.letter, itemStyle]}>
           <Text style={styles.letterText}>{letter}</Text>
-        </View>
+        </Animated.View>
       </TouchableOpacity>
     )
   }
