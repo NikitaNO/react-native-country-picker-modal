@@ -183,7 +183,7 @@ export default class CountryPicker extends Component {
 
     const arr = [];
 
-    for (let i = 0; i <= countryList.length; i++) {
+    for (let i = 0; i <= 20; i++) {
       arr.push(i);
     }
 
@@ -224,12 +224,11 @@ export default class CountryPicker extends Component {
       filter: '',
       dataSource: ds.cloneWithRows(this.state.cca2List)
     })
+    this.onAnimationEnd();
+    this.onAnimationListEnd();
     if (this.props.onClose) {
       this.props.onClose()
     }
-
-    this.onAnimationEnd();
-    this.onAnimationListEnd();
   }
 
   onAnimationStart = () => {
@@ -240,7 +239,7 @@ export default class CountryPicker extends Component {
       useNativeDriver: true,
     });
 
-    animation.start(() => this.onAnimationStart());
+    animation.start();
   };
 
   onAnimationEnd = () => {
@@ -251,27 +250,29 @@ export default class CountryPicker extends Component {
       useNativeDriver: true,
     });
 
-    animation.start(() => this.onAnimationStart());
+    animation.start();
   };
 
   onAnimationListStart = () => {
     const animations = this.arr.map(item =>
-      Animated.timing(this.animatedValue[item], {
+      Animated.timing(this.animatedListValue[item], {
         toValue: 1,
         duration: 600,
-        easing: Easing.ease.in,
+        easing: Easing.bezier(0, 0.2, 0.8, 1),
+        useNativeDriver: true,
       }),
     );
 
-    Animated.stagger(200, animations).start();
+    Animated.stagger(60, animations).start();
   };
 
   onAnimationListEnd = () => {
     const animations = this.arr.map(item =>
-      Animated.timing(this.animatedValue[item], {
+      Animated.timing(this.animatedListValue[item], {
         toValue: 0,
         duration: 200,
         easing: Easing.ease.out,
+        useNativeDriver: true,
       }),
     );
 
@@ -308,10 +309,7 @@ export default class CountryPicker extends Component {
   listHeight = countries.length * this.itemHeight
 
   openModal() {
-    this.setState({ modalVisible: true }, () => {
-      this.onAnimationStart();
-      this.onAnimationListStart();
-    })
+    this.setState({ modalVisible: true });
   }
 
   scrollTo(letter) {
@@ -350,29 +348,14 @@ export default class CountryPicker extends Component {
     })
   }
 
-  renderCountry(country, index) {
-    return (
-      <TouchableOpacity
-        key={index}
-        onPress={() => this.onSelectCountry(country)}
-        activeOpacity={0.99}
-      >
-        <View style={{ marginLeft: 15 }}>
-          {this.renderCountryDetail(country)}
-          <Image source={require('./delimiter.png')} style={styles.delimiter} />
-        </View>
-      </TouchableOpacity>
-    )
-  }
-
-  renderLetters(letter, index) {
+  renderCountry(country, index, i) {
     const itemStyle = {
       transform: [
         {
-          translateX: this.animatedListValue[index].interpolate({
+          translateX: i < 20 ? this.animatedListValue[i].interpolate({
             inputRange: [0, 1],
             outputRange: [-300, 0],
-          })
+          }) : 0,
         }
       ]
     };
@@ -380,10 +363,25 @@ export default class CountryPicker extends Component {
     return (
       <TouchableOpacity
         key={index}
+        onPress={() => this.onSelectCountry(country)}
+        activeOpacity={0.99}
+      >
+        <Animated.View style={[{ marginLeft: 15 }, itemStyle]}>
+          {this.renderCountryDetail(country)}
+          <Image source={require('./delimiter.png')} style={styles.delimiter} />
+        </Animated.View>
+      </TouchableOpacity>
+    )
+  }
+
+  renderLetters(letter, index) {
+    return (
+      <TouchableOpacity
+        key={index}
         onPress={() => this.scrollTo(letter)}
         activeOpacity={0.6}
       >
-        <Animated.View style={[styles.letter, itemStyle]}>
+        <Animated.View style={styles.letter}>
           <Text style={styles.letterText}>{letter}</Text>
         </Animated.View>
       </TouchableOpacity>
@@ -419,15 +417,24 @@ export default class CountryPicker extends Component {
         </View>
       </View>
     </View>
-    )
+  )
 
   render() {
+    const rotate = this.animatedValue.interpolate({
+      inputRange: [0, 32],
+      outputRange: ['0deg', '720deg']
+    })
+
     return (
       <View>
         <TouchableOpacity
           disabled={this.props.disabled}
-          onPress={() => this.setState({ modalVisible: true })}
+          onPress={() => this.setState({ modalVisible: true }, () => {
+            this.onAnimationListStart();
+            this.onAnimationStart();
+          })}
           activeOpacity={0.7}
+          style={{ padding: 10 }}
         >
           {this.props.children ? (
             this.props.children
@@ -437,7 +444,7 @@ export default class CountryPicker extends Component {
             >
               {CountryPicker.renderFlag(this.props.cca2)}
             </View>
-            )}
+          )}
         </TouchableOpacity>
         <Modal
           transparent={this.props.transparent}
@@ -455,13 +462,23 @@ export default class CountryPicker extends Component {
             }} blurType="dark" blurAmount={this.state.modalBlur}
           />
           <View style={styles.header}>
-            <View style={{ marginTop: 10 }}>
+            <View style={{ marginTop: 40 }}>
               {this.props.closeable && (
-                <CloseButton
-                  image={this.props.closeButtonImage}
-                  styles={[styles.closeButton, styles.closeButtonImage]}
-                  onPress={() => this.onClose()}
-                />
+                <Animated.View
+                  style={{
+                    transform: [{ rotate }],
+                    width: 30,
+                    heigth: 30,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <CloseButton
+                    image={this.props.closeButtonImage}
+                    styles={[styles.closeButton, styles.closeButtonImage, { backgroundColor: '#0f0' }]}
+                    onPress={() => this.onClose()}
+                  />
+                </Animated.View>
               )}
               <Text style={styles.countryText}>COUNTRY</Text>
               <Text style={styles.selectCountryText}>{'Select your country'.toUpperCase()}</Text>
@@ -495,7 +512,7 @@ export default class CountryPicker extends Component {
                   enableEmptySections
                   ref={listView => (this._listView = listView)}
                   dataSource={this.state.dataSource}
-                  renderRow={country => this.renderCountry(country)}
+                  renderRow={(country, index, i) => this.renderCountry(country, index, i)}
                   initialListSize={30}
                   pageSize={15}
                   onLayout={({ nativeEvent: { layout: { y: offset } } }) =>
@@ -508,9 +525,9 @@ export default class CountryPicker extends Component {
                 keyboardShouldPersistTaps="always"
               >
                 {this.state.filter === '' &&
-                  this.state.letters.map((letter, index) =>
-                    this.renderLetters(letter, index)
-                  )}
+                this.state.letters.map((letter, index) =>
+                  this.renderLetters(letter, index)
+                )}
               </ScrollView>
             </View>
           </KeyboardAvoidingView>
