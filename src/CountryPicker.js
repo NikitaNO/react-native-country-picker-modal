@@ -16,6 +16,7 @@ import {
   Platform,
   Animated,
   Easing,
+  Dimensions
 } from 'react-native'
 import { BlurView } from 'react-native-blur'
 
@@ -26,11 +27,13 @@ import { getHeightPercent } from './ratio'
 import CloseButton from './CloseButton'
 import countryPickerStyles from './CountryPicker.style'
 import KeyboardAvoidingView from './KeyboardAvoidingView'
+import phoneBack from './phoneBack.png'
 
 let countries = null
 let Emoji = null
 let styles = {}
 
+const { width, height } = Dimensions.get('window');
 const isEmojiable = Platform.OS === 'ios'
 
 if (isEmojiable) {
@@ -126,13 +129,13 @@ export default class CountryPicker extends Component {
 
     // Sort country list
     countryList = countryList
-      .map(c => [c, this.getCountryName(countries[c])])
-      .sort((a, b) => {
-        if (a[1] < b[1]) return -1
-        if (a[1] > b[1]) return 1
-        return 0
-      })
-      .map(c => c[0])
+    .map(c => [c, this.getCountryName(countries[c])])
+    .sort((a, b) => {
+      if (a[1] < b[1]) return -1
+      if (a[1] > b[1]) return 1
+      return 0
+    })
+    .map(c => c[0])
 
     this.state = {
       modalVisible: false,
@@ -256,8 +259,8 @@ export default class CountryPicker extends Component {
         (acc, val) => ({
           ...acc,
           [this.getCountryName(countries[val])
-            .slice(0, 1)
-            .toUpperCase()]: ''
+          .slice(0, 1)
+          .toUpperCase()]: ''
         }),
         {}
       )
@@ -280,8 +283,8 @@ export default class CountryPicker extends Component {
       activeLetter: letter
     });
     const index = this.state.cca2List
-      .map(country => this.getCountryName(countries[country])[0])
-      .indexOf(letter)
+    .map(country => this.getCountryName(countries[country])[0])
+    .indexOf(letter)
     if (index === -1) {
       return
     }
@@ -394,8 +397,6 @@ export default class CountryPicker extends Component {
           visible={this.state.modalVisible}
           onRequestClose={() => this.setState({ modalVisible: false })}
         >
-
-
           {Platform.OS === 'ios' ? (
             <BlurView
               style={{
@@ -407,15 +408,17 @@ export default class CountryPicker extends Component {
               }} blurType="dark" blurAmount={this.state.modalBlur}
             />
           ) : (
-            <View style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              bottom: 0,
-              right: 0,
-              backgroundColor: 'rgba(0,0,0,0.9)' }} />
+            <View style={styles.absolute}>
+              <Image
+                source={phoneBack}
+                style={{ position: 'absolute', width, height }}
+                resizeMode="cover"
+                blurRadius={20}
+                onLoadEnd={this.imageLoaded}
+              />
+              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} />
+            </View>
           )}
-
           <View style={styles.header}>
             <View style={{ marginTop: 10 }}>
               {this.props.closeable && (
