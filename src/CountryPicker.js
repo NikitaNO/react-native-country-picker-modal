@@ -71,6 +71,7 @@ export default class CountryPicker extends Component {
     transparent: PropTypes.bool,
     animationType: PropTypes.string,
     cuntryNmame: PropTypes.string,
+    androidBlurImage: PropTypes.any,
   }
 
   static defaultProps = {
@@ -80,7 +81,8 @@ export default class CountryPicker extends Component {
     filterPlaceholder: 'Filter',
     autoFocusFilter: true,
     transparent: false,
-    animationType: 'none'
+    animationType: 'none',
+    androidBlurImage: phoneBack,
   }
 
   static renderEmojiFlag(cca2, emojiStyle) {
@@ -354,24 +356,28 @@ export default class CountryPicker extends Component {
     )
   }
 
-  renderCurentCountry = () => (
-    <View>
-      <View style={styles.curentCountryContainer}>
-        <View style={styles.curentCountryFlag}>
-          {CountryPicker.renderFlag(this.props.cca2)}
-          <Text style={styles.cuntryNmame}>{this.props.cuntryNmame}</Text>
+  renderCurentCountry = () => {
+    const country = countries[this.props.cca2]
+
+    return (
+      <View>
+        <View style={styles.curentCountryContainer}>
+          <View style={styles.curentCountryFlag}>
+            {CountryPicker.renderFlag(this.props.cca2)}
+            <Text style={styles.cuntryNmame}>{this.getCountryName(country)}</Text>
+          </View>
+          <Text style={styles.curentCantryText}>{'current country'.toUpperCase()}</Text>
         </View>
-        <Text style={styles.curentCantryText}>{'current country'.toUpperCase()}</Text>
-      </View>
-      <View style={{ alignItems: 'flex-end', marginBottom: 5 }}>
-        <View style={styles.activLetterWrapper}>
-          <View style={styles.activLetterContainer}>
-            <Text style={styles.activeLetter}>{this.state.activeLetter.toUpperCase()}</Text>
+        <View style={{ alignItems: 'flex-end', marginBottom: 5 }}>
+          <View style={styles.activLetterWrapper}>
+            <View style={styles.activLetterContainer}>
+              <Text style={styles.activeLetter}>{this.state.activeLetter.toUpperCase()}</Text>
+            </View>
           </View>
         </View>
       </View>
-    </View>
-  )
+    )
+  }
 
   render() {
     return (
@@ -410,7 +416,7 @@ export default class CountryPicker extends Component {
           ) : (
             <View style={styles.absolute}>
               <Image
-                source={phoneBack}
+                source={this.props.androidBlurImage}
                 style={{ position: 'absolute', width, height }}
                 resizeMode="cover"
                 blurRadius={20}
