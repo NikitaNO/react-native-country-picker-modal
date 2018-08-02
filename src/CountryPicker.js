@@ -414,7 +414,6 @@ export default class CountryPicker extends Component {
                 style={{ position: 'absolute', width, height }}
                 resizeMode="cover"
                 blurRadius={20}
-                onLoadEnd={this.imageLoaded}
               />
               <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} />
             </View>
