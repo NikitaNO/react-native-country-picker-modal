@@ -28,6 +28,7 @@ import CloseButton from './CloseButton'
 import countryPickerStyles from './CountryPicker.style'
 import KeyboardAvoidingView from './KeyboardAvoidingView'
 import phoneBack from './phoneBack.png'
+import colors from '../../../src/constants/colors';
 
 let countries = null
 let Emoji = null
@@ -71,7 +72,6 @@ export default class CountryPicker extends Component {
     transparent: PropTypes.bool,
     animationType: PropTypes.string,
     cuntryNmame: PropTypes.string,
-    androidBlurImage: PropTypes.any,
   }
 
   static defaultProps = {
@@ -81,8 +81,7 @@ export default class CountryPicker extends Component {
     filterPlaceholder: 'Filter',
     autoFocusFilter: true,
     transparent: false,
-    animationType: 'none',
-    androidBlurImage: phoneBack,
+    animationType: 'none'
   }
 
   static renderEmojiFlag(cca2, emojiStyle) {
@@ -380,12 +379,15 @@ export default class CountryPicker extends Component {
   }
 
   render() {
+    const country = countries[this.props.cca2]
+
     return (
       <View>
         <TouchableOpacity
           disabled={this.props.disabled}
           onPress={() => this.setState({ modalVisible: true })}
           activeOpacity={0.7}
+          style={{ justifyContent: 'center' }}
         >
           {this.props.children ? (
             this.props.children
@@ -394,6 +396,7 @@ export default class CountryPicker extends Component {
               style={[styles.touchFlag]}
             >
               {CountryPicker.renderFlag(this.props.cca2)}
+              <Text style={{ fontSize: 14, color: colors.white, textAlign: 'center' }}>{` + ${country.callingCode}`}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -416,7 +419,7 @@ export default class CountryPicker extends Component {
           ) : (
             <View style={styles.absolute}>
               <Image
-                source={this.props.androidBlurImage}
+                source={phoneBack}
                 style={{ position: 'absolute', width, height }}
                 resizeMode="cover"
                 blurRadius={20}

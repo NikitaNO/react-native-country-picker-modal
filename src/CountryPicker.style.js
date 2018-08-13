@@ -30,7 +30,7 @@ export default StyleSheet.create({
     width: '80%',
     fontSize: 12,
     color: 'white',
-    height: getHeightPercent(7) 
+    height: getHeightPercent(7)
   },
   serchIcon: {
     width: 15,
@@ -42,7 +42,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 20,
-    width: 30
+    flexDirection: 'row',
   },
   imgStyle: {
     resizeMode: 'contain',
@@ -117,13 +117,13 @@ export default StyleSheet.create({
   countryText: {
     fontSize: 16,
     color: '#36cdaf',
-    textAlign: "center",
+    textAlign: 'center',
     fontWeight: '500',
   },
   selectCountryText: {
     fontSize: 12,
     color: 'white',
-    textAlign: "center",
+    textAlign: 'center',
     marginVertical: 10
   },
   curentCountryContainer: {
