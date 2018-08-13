@@ -41,7 +41,7 @@ export default StyleSheet.create({
   touchFlag: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 20,
+    height: 40,
     flexDirection: 'row',
   },
   imgStyle: {
