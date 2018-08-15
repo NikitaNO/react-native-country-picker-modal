@@ -106,7 +106,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     position: 'absolute',
     left: -3,
-    top: -3,
+    top: 0,
     zIndex: 100,
   },
   closeButtonImage: {

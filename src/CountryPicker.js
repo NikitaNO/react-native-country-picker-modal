@@ -378,6 +378,33 @@ export default class CountryPicker extends Component {
     )
   }
 
+  renderBlur = () => {
+    if (Platform.OS === 'ios') {
+      return (
+        <BlurView
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+          }} blurType="dark" blurAmount={this.state.modalBlur}
+        />
+      )
+    }
+    return (
+      <View style={{ position: 'absolute', width, height }}>
+        <Image
+          source={phoneBack}
+          style={{ position: 'absolute', width, height }}
+          resizeMode="cover"
+          blurRadius={20}
+        />
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} />
+      </View>
+    )
+  }
+
   render() {
     const country = countries[this.props.cca2]
 
@@ -406,27 +433,7 @@ export default class CountryPicker extends Component {
           visible={this.state.modalVisible}
           onRequestClose={() => this.setState({ modalVisible: false })}
         >
-          {Platform.OS === 'ios' ? (
-            <BlurView
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0,
-              }} blurType="dark" blurAmount={this.state.modalBlur}
-            />
-          ) : (
-            <View style={styles.absolute}>
-              <Image
-                source={phoneBack}
-                style={{ position: 'absolute', width, height }}
-                resizeMode="cover"
-                blurRadius={20}
-              />
-              <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} />
-            </View>
-          )}
+          {this.renderBlur()}
           <View style={styles.header}>
             <View style={{ marginTop: 10 }}>
               {this.props.closeable && (
