@@ -400,7 +400,7 @@ export default class CountryPicker extends Component {
           resizeMode="cover"
           blurRadius={20}
         />
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} />
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,1)' }} />
       </View>
     )
   }
