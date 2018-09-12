@@ -16,7 +16,8 @@ import {
   Platform,
   Animated,
   Easing,
-  Dimensions
+  Dimensions,
+  SafeAreaView
 } from 'react-native'
 import { BlurView } from 'react-native-blur'
 
@@ -28,7 +29,6 @@ import CloseButton from './CloseButton'
 import countryPickerStyles from './CountryPicker.style'
 import KeyboardAvoidingView from './KeyboardAvoidingView'
 import phoneBack from './phoneBack.png'
-import colors from '../../../src/constants/colors';
 
 let countries = null
 let Emoji = null
@@ -423,7 +423,7 @@ export default class CountryPicker extends Component {
               style={[styles.touchFlag]}
             >
               {CountryPicker.renderFlag(this.props.cca2)}
-              <Text style={{ fontSize: 14, color: colors.white, textAlign: 'center' }}>{` + ${country.callingCode}`}</Text>
+              <Text style={{ fontSize: 14, color: '#fff', textAlign: 'center' }}>{` + ${country.callingCode}`}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -434,7 +434,7 @@ export default class CountryPicker extends Component {
           onRequestClose={() => this.setState({ modalVisible: false })}
         >
           {this.renderBlur()}
-          <View style={styles.header}>
+          <SafeAreaView style={styles.header}>
             <View style={{ marginTop: 10 }}>
               {this.props.closeable && (
                 <CloseButton
@@ -465,7 +465,7 @@ export default class CountryPicker extends Component {
                 <Image source={require('./delimiter.png')} style={styles.delimiter} />
               </View>
             )}
-          </View>
+          </SafeAreaView>
           <KeyboardAvoidingView behavior="padding">
             <View style={styles.contentContainer}>
               <View style={{ width: '90%' }}>
