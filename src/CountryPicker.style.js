@@ -35,7 +35,6 @@ export default StyleSheet.create({
   serchIcon: {
     width: 15,
     height: 15,
-    tintColor: '#36cdaf',
     marginRight: 10
   },
   touchFlag: {
@@ -72,6 +71,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: '7%',
+    marginTop: -3,
   },
   itemCountryName: {
     justifyContent: 'center',
@@ -108,6 +108,9 @@ export default StyleSheet.create({
     left: -3,
     top: 0,
     zIndex: 100,
+  },
+  callingCodeText: {
+    fontSize: 14, color: '#fff', textAlign: 'center'
   },
   closeButtonImage: {
     height: 17,

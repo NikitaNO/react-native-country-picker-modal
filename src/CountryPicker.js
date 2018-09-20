@@ -323,7 +323,7 @@ export default class CountryPicker extends Component {
       >
         <View style={{ marginLeft: 15 }}>
           {this.renderCountryDetail(country)}
-          <Image source={require('./delimiter.png')} style={styles.delimiter} />
+          <Image source={ this.props.delimiter || require('./delimiter.png')} style={styles.delimiter} resizeMode="contain" />
         </View>
       </TouchableOpacity>
     )
@@ -337,7 +337,7 @@ export default class CountryPicker extends Component {
         activeOpacity={0.6}
       >
         <View style={styles.letter}>
-          <Text style={styles.letterText}>{letter}</Text>
+          <Text style={[styles.letterText, this.props.mainTextStyle]}>{letter}</Text>
         </View>
       </TouchableOpacity>
     )
@@ -349,7 +349,7 @@ export default class CountryPicker extends Component {
       <View style={styles.itemCountry}>
         {CountryPicker.renderFlag(cca2)}
         <View style={styles.itemCountryName}>
-          <Text style={styles.countryName}>{this.getCountryName(country)}</Text>
+          <Text style={[styles.countryName, this.props.mainTextStyle]}>{this.getCountryName(country)}</Text>
         </View>
       </View>
     )
@@ -363,9 +363,9 @@ export default class CountryPicker extends Component {
         <View style={styles.curentCountryContainer}>
           <View style={styles.curentCountryFlag}>
             {CountryPicker.renderFlag(this.props.cca2)}
-            <Text style={styles.cuntryNmame}>{this.getCountryName(country)}</Text>
+            <Text style={[styles.cuntryNmame, this.props.mainTextStyle ]}>{this.getCountryName(country)}</Text>
           </View>
-          <Text style={styles.curentCantryText}>{'current country'.toUpperCase()}</Text>
+          <Text style={[styles.curentCantryText, { color: this.props.mainColor }]}>{'current country'.toUpperCase()}</Text>
         </View>
         <View style={{ alignItems: 'flex-end', marginBottom: 5 }}>
           <View style={styles.activLetterWrapper}>
@@ -388,7 +388,7 @@ export default class CountryPicker extends Component {
             left: 0,
             bottom: 0,
             right: 0,
-          }} blurType="dark" blurAmount={this.state.modalBlur}
+          }} blurType={this.props.blurType || "dark"} blurAmount={this.state.modalBlur}
         />
       )
     }
@@ -408,6 +408,7 @@ export default class CountryPicker extends Component {
   render() {
     const country = countries[this.props.cca2]
 
+    console.log(country);
     return (
       <View>
         <TouchableOpacity
@@ -423,7 +424,12 @@ export default class CountryPicker extends Component {
               style={[styles.touchFlag]}
             >
               {CountryPicker.renderFlag(this.props.cca2)}
-              <Text style={{ fontSize: 14, color: '#fff', textAlign: 'center' }}>{` + ${country.callingCode}`}</Text>
+              {this.props.showCallingCode && country.callingCode &&
+              <Text style={[styles.callingCodeText, this.props.callingCodeStyle]}>{` + ${country.callingCode}`}</Text>}
+
+              {this.props.showCountry && country.name && country.name.common ?
+                <Text style={[styles.callingCodeText, { marginLeft: 5 }, this.props.callingCodeStyle]}>{country.name.common}</Text>
+                : null }
             </View>
           )}
         </TouchableOpacity>
@@ -443,14 +449,14 @@ export default class CountryPicker extends Component {
                   onPress={() => this.onClose()}
                 />
               )}
-              <Text style={styles.countryText}>COUNTRY</Text>
-              <Text style={styles.selectCountryText}>{'Select your country'.toUpperCase()}</Text>
+              <Text style={[styles.countryText, { color: this.props.mainColor }]}>COUNTRY</Text>
+              <Text style={[styles.selectCountryText, this.props.mainTextStyle]}>{'Select your country'.toUpperCase()}</Text>
             </View>
             {this.props.filterable && (
               <View style={styles.filterContainer}>
-                <Image source={require('./delimiter.png')} style={styles.delimiter} />
+                <Image source={this.props.delimiter || require('./delimiter.png')} style={styles.delimiter} resizeMode="contain"/>
                 <View style={styles.contentFilterContainer}>
-                  <Image source={require('./search.png')} style={styles.serchIcon} />
+                  <Image source={require('./search.png')} style={[styles.serchIcon, { tintColor: this.props.mainColor || '#36cdaf'}]} />
                   <TextInput
                     underlineColorAndroid="transparent"
                     autoFocus={this.props.autoFocusFilter}
@@ -462,7 +468,7 @@ export default class CountryPicker extends Component {
                     value={this.state.filter}
                   />
                 </View>
-                <Image source={require('./delimiter.png')} style={styles.delimiter} />
+                <Image source={this.props.delimiter || require('./delimiter.png')} style={styles.delimiter} resizeMode="contain"/>
               </View>
             )}
           </SafeAreaView>
