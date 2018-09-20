@@ -408,7 +408,6 @@ export default class CountryPicker extends Component {
   render() {
     const country = countries[this.props.cca2]
 
-    console.log(country);
     return (
       <View>
         <TouchableOpacity
