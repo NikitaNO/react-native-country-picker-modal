@@ -323,7 +323,7 @@ export default class CountryPicker extends Component {
       >
         <View style={{ marginLeft: 15 }}>
           {this.renderCountryDetail(country)}
-          <Image source={ this.props.delimiter || require('./delimiter.png')} style={styles.delimiter} resizeMode="contain" />
+          <Image source={this.props.delimiter || require('./delimiter.png')} style={styles.delimiter} resizeMode="contain" />
         </View>
       </TouchableOpacity>
     )
@@ -363,7 +363,7 @@ export default class CountryPicker extends Component {
         <View style={styles.curentCountryContainer}>
           <View style={styles.curentCountryFlag}>
             {CountryPicker.renderFlag(this.props.cca2)}
-            <Text style={[styles.cuntryNmame, this.props.mainTextStyle ]}>{this.getCountryName(country)}</Text>
+            <Text style={[styles.cuntryNmame, this.props.mainTextStyle]}>{this.getCountryName(country)}</Text>
           </View>
           <Text style={[styles.curentCantryText, { color: this.props.mainColor }]}>{'current country'.toUpperCase()}</Text>
         </View>
@@ -388,7 +388,7 @@ export default class CountryPicker extends Component {
             left: 0,
             bottom: 0,
             right: 0,
-          }} blurType={this.props.blurType || "dark"} blurAmount={this.state.modalBlur}
+          }} blurType={this.props.blurType || 'dark'} blurAmount={this.state.modalBlur}
         />
       )
     }
@@ -424,10 +424,16 @@ export default class CountryPicker extends Component {
             >
               {CountryPicker.renderFlag(this.props.cca2)}
               {this.props.showCallingCode && country.callingCode &&
-              <Text style={[styles.callingCodeText, this.props.callingCodeStyle]}>{` + ${country.callingCode}`}</Text>}
+                <Text style={[styles.callingCodeText, this.props.callingCodeStyle]}>
+                {` + ${country.callingCode}`}
+                </Text>
+              }
 
-              {this.props.showCountry && country.name && country.name.common ?
-                <Text style={[styles.callingCodeText, { marginLeft: 5 }, this.props.callingCodeStyle]}>{country.name.common}</Text>
+              {this.props.showCountry && country.name && country.name.common ? (
+                <Text style={[styles.callingCodeText, { marginLeft: 5 }, this.props.callingCodeStyle]}>
+                  {country.name.common}
+                </Text>
+                )
                 : null }
             </View>
           )}
@@ -453,9 +459,9 @@ export default class CountryPicker extends Component {
             </View>
             {this.props.filterable && (
               <View style={styles.filterContainer}>
-                <Image source={this.props.delimiter || require('./delimiter.png')} style={styles.delimiter} resizeMode="contain"/>
+                <Image source={this.props.delimiter || require('./delimiter.png')} style={styles.delimiter} resizeMode="contain" />
                 <View style={styles.contentFilterContainer}>
-                  <Image source={require('./search.png')} style={[styles.serchIcon, { tintColor: this.props.mainColor || '#36cdaf'}]} />
+                  <Image source={require('./search.png')} style={[styles.serchIcon, { tintColor: this.props.mainColor || '#36cdaf' }]} />
                   <TextInput
                     underlineColorAndroid="transparent"
                     autoFocus={this.props.autoFocusFilter}
@@ -467,7 +473,7 @@ export default class CountryPicker extends Component {
                     value={this.state.filter}
                   />
                 </View>
-                <Image source={this.props.delimiter || require('./delimiter.png')} style={styles.delimiter} resizeMode="contain"/>
+                <Image source={this.props.delimiter || require('./delimiter.png')} style={styles.delimiter} resizeMode="contain" />
               </View>
             )}
           </SafeAreaView>
