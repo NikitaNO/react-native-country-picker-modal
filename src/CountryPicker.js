@@ -63,6 +63,7 @@ export default class CountryPicker extends Component {
     countryList: PropTypes.array,
     excludeCountries: PropTypes.array,
     styles: PropTypes.object,
+    filterInputCustomStyle: PropTypes.object,
     filterPlaceholder: PropTypes.string,
     autoFocusFilter: PropTypes.bool,
     // to provide a functionality to disable/enable the onPress of Country Picker.
@@ -81,7 +82,8 @@ export default class CountryPicker extends Component {
     filterPlaceholder: 'Filter',
     autoFocusFilter: true,
     transparent: false,
-    animationType: 'none'
+    animationType: 'none',
+    filterInputCustomStyle: {}
   }
 
   static renderEmojiFlag(cca2, emojiStyle) {
@@ -468,7 +470,7 @@ export default class CountryPicker extends Component {
                     autoCorrect={false}
                     placeholder={this.props.filterPlaceholder}
                     placeholderTextColor={this.props.filterPlaceholderTextColor}
-                    style={styles.input}
+                    style={[styles.input, this.props.filterInputCustomStyle]}
                     onChangeText={this.handleFilterChange}
                     value={this.state.filter}
                   />
