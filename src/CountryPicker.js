@@ -63,7 +63,6 @@ export default class CountryPicker extends Component {
     countryList: PropTypes.array,
     excludeCountries: PropTypes.array,
     styles: PropTypes.object,
-    filterInputCustomStyle: PropTypes.object,
     filterPlaceholder: PropTypes.string,
     autoFocusFilter: PropTypes.bool,
     // to provide a functionality to disable/enable the onPress of Country Picker.
@@ -82,8 +81,7 @@ export default class CountryPicker extends Component {
     filterPlaceholder: 'Filter',
     autoFocusFilter: true,
     transparent: false,
-    animationType: 'none',
-    filterInputCustomStyle: {}
+    animationType: 'none'
   }
 
   static renderEmojiFlag(cca2, emojiStyle) {
@@ -397,12 +395,12 @@ export default class CountryPicker extends Component {
     return (
       <View style={{ position: 'absolute', width, height }}>
         <Image
-          source={phoneBack}
+          source={this.props.phoneBackground || phoneBack}
           style={{ position: 'absolute', width, height }}
           resizeMode="cover"
           blurRadius={20}
         />
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,1)' }} />
+        <View style={{ flex: 1, backgroundColor: this.props.blurBg || 'rgba(0,0,0,1)' }} />
       </View>
     )
   }
@@ -426,9 +424,9 @@ export default class CountryPicker extends Component {
             >
               {CountryPicker.renderFlag(this.props.cca2)}
               {this.props.showCallingCode && country.callingCode &&
-                <Text style={[styles.callingCodeText, this.props.callingCodeStyle]}>
+              <Text style={[styles.callingCodeText, this.props.callingCodeStyle]}>
                 {` + ${country.callingCode}`}
-                </Text>
+              </Text>
               }
 
               {this.props.showCountry && country.name && country.name.common ? (

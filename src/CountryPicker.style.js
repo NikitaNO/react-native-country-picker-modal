@@ -14,7 +14,7 @@ export default StyleSheet.create({
   },
   header: {
     marginTop: Platform.OS === 'ios' ? 16 : 0,
-    marginLeft: 15
+    marginLeft: 15,
   },
   filterContainer: {
     marginRight: 15

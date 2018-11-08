@@ -11,7 +11,7 @@ const CloseButton = props => {
 
   return (
     <View style={props.styles[0]}>
-      <TouchableOpacity onPress={props.onPress}>
+      <TouchableOpacity onPress={props.onPress} style={{ padding: 20 }}>
         <Image source={closeImage} style={props.styles[1]} />
       </TouchableOpacity>
     </View>
