@@ -72,6 +72,8 @@ export default class CountryPicker extends Component {
     transparent: PropTypes.bool,
     animationType: PropTypes.string,
     cuntryNmame: PropTypes.string,
+    currentCountryFlagStyles: PropTypes.any,
+    currentCountryTitileStyle: PropTypes.any,
   }
 
   static defaultProps = {
@@ -361,7 +363,7 @@ export default class CountryPicker extends Component {
     return (
       <View>
         <View style={styles.curentCountryContainer}>
-          <View style={styles.curentCountryFlag}>
+          <View style={[styles.curentCountryFlag, this.props.currentCountryTitileStyle]}>
             {CountryPicker.renderFlag(this.props.cca2)}
             <Text style={[styles.cuntryNmame, this.props.mainTextStyle]}>{this.getCountryName(country)}</Text>
           </View>
@@ -369,7 +371,7 @@ export default class CountryPicker extends Component {
         </View>
         <View style={{ alignItems: 'flex-end', marginBottom: 5 }}>
           <View style={styles.activLetterWrapper}>
-            <View style={styles.activLetterContainer}>
+            <View style={[styles.activLetterContainer, this.props.currentCountryFlagStyles]}>
               <Text style={styles.activeLetter}>{this.state.activeLetter.toUpperCase()}</Text>
             </View>
           </View>
@@ -430,9 +432,9 @@ export default class CountryPicker extends Component {
               }
 
               {this.props.showCountry && country.name && country.name.common ? (
-                <Text style={[styles.callingCodeText, { marginLeft: 5 }, this.props.callingCodeStyle]}>
-                  {country.name.common}
-                </Text>
+                  <Text style={[styles.callingCodeText, { marginLeft: 5 }, this.props.callingCodeStyle]}>
+                    {country.name.common}
+                  </Text>
                 )
                 : null }
             </View>
